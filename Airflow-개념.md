@@ -34,7 +34,6 @@
 * Airbnb에서 2014년 10월 시작된 오픈소스 프로젝트 -> 오픈소스로 2015년 6월 발표 -> 2016년 3월 아파치 재단에서 인큐베이터 프로그램으로 뽑아 관리 시작 -> 2019년 1월 Airflow를 탑티어 프로젝트로 발표 
 
 ### Core components
-![k8sdataeng1](https://open.oss.navercorp.com/storage/user/1981/files/55b83a88-3b47-4cfe-9b29-33960f93d132)
 
 * Scheduler : Workflow를 스케줄링하는 스케줄러 데몬이다. 모든 DAG와 태스크를 모니터링하고 관리하며, 주기적으로 실행해야 할 태스크를 찾고 해당 태스크를 실행 가능한 상태로 변경. 
  실행할 작업을 executor에게 제출. Airflow에서 가장 핵심이 되는 컴포넌트
@@ -45,7 +44,6 @@
 > * Sequential Executor : Worker 가 한번에 하나의 Task만 수행할수 있어 제약적.
 > * Local Executor : Worker 가 Scheduler 와 같은 서버에서 실행. 장점은 구성이 간단하여 베타 혹은 테스트 환경에 많이 사용. 단점은 단일 장비 환경에서 작동하기 때문에 Single point of Failure(SPOF) 발생가능. 
 > * Celery Executor : 메시지 브로커(broker)가 필요하며, 메시지 브로커로는 RabbitMQ나 Redis를 사용할 수 있다. 스케줄러는 Task를 메시지 브로커에 전달하고, Celery Worker가 Task를 가져가서 실행하는 방식. 장점은 worker를 scale out 할 수 있다. 단점은 메시지 브로커가 생겨 관리 포인트가 늘어난다.
-> > ![celery executor](https://open.oss.navercorp.com/storage/user/1981/files/37a0cc16-c918-4722-a9b9-76af23457a9d)
 > * Kubernetes Executor : 컨테이너 환경에서 Worker 가 실행되도록 구성. Task를 스케줄러가 메시지 브로커에 전달하는게 아니라 Kubernetes API를 사용하여 Airflow 워커를 pod 형태로 실행. 태스크가 실행될 경우에만 워커를 생성하고 태스크가 완료되면 자원을 반납하기 때문에 Kubernetes의 자원을 효율적으로 사용있다는 장점이 있다. 그러나 상대적으로 구성이 까다롭다. 워커 POD는 휘발성이기 때문에 POD가 종료되면 로그가 유실. 그래서 외부 저장소인 Amazon S3나 Elastic Search 등으로 로그를 저장해야 된다. 
 * Worker : 실제 Task를 처리하는 컴포넌트.
 * Kerberos : 인증 처리를 위한 프로세스로 필수 사항은 아니다.
@@ -90,12 +88,10 @@
     | @yearly |	Run once a year at midnight of January 1	                     | 0 0 1 1 * |
 * Airflow에서는 Jinja2 template를 내장하고 있어 이를 활용할 수 있다. macro를 통해 variable에 접근 가능하다.
 * https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html 를 통해 확인가능. {{ ds }}는 logical date에 접근.
-    ![logical_date](https://open.oss.navercorp.com/storage/user/1981/files/8c82d4e6-de12-496d-8d82-e9d1773b2002)
 
 ### Catch up
 * Dag 속성 안에 Catch up이라는 인수를 줄 수 있다. 기본적으로 false가 되어있고, True로 주게 되면 Catch up이 활성화.
 * 과거에 start_date를 설정하면 airflow는 과거의 Task를 차례대로 실행하는 Backfill을 실행
-    ![catchup](https://open.oss.navercorp.com/storage/user/1981/files/9ecaffac-331f-4768-a203-c5d23c8d2d37)
 
 ### Default argument
 * Dag의 모든 task에 공통적으로 적용되는 arguments를 정의할 수 있다.

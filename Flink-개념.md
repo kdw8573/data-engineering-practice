@@ -39,7 +39,6 @@
 * DataStream / DataSet API : 핵심적으로 가장 많이 사용하는 Core API. 데이터 처리를 위해 transformation, join, window 등을 개념을 제공.
 * Table API : Library로 제공되는 Table API. 기존의 dataset이나 datastream, data source로 테이블을 만들 수 있다. 테이블 api를 통해 join, select, filter 등의 operation을 쓸 수 있다.  
 * SQL : select, join, aggregate 등의 SQL를 사용할 수 있는 High-level Language를 지원.
-![flink abstract api](https://open.oss.navercorp.com/storage/user/1981/files/dd63669f-7575-43db-88e0-69b0dc56c0f3)
 
 ## Window
 * Streaming data는 unbounded data이기 때문에 각 element를 개별적으로 처리 하는 연산이라면 문제 없다.
@@ -50,7 +49,6 @@
 > * Session: 일정 기간동안 반응이 없는 경우(session gap) 그 전 window시점부터 마지막으로 데이터가 들어온 시점까지 하나의 window로 처리. 그래서 윈도우 크기가 일정하지 않고, 데이터 양도 다르다.
 > * Global : 하나의 윈도우로 모든 데이터 처리. 따라서 trigger(가져올 데이터에 대한 정의) 와 evictor(처리할 데이터에 대한 정의) 를 설정해야 된다. 
 > * ex) stream.windowAll(GlobalWindows.create()).trigger(CountTrigger.of(3)) // 입력 데이터 3개마다 처리 .evictor(CountEvictor.of(5)) // 5개의 데이터를 처리
-> <img width="720" alt="스크린샷 2023-01-28 오후 2 08 52" src="https://open.oss.navercorp.com/storage/user/1981/files/a1a4d438-1f3f-4256-a325-aca8bac3dfb2">
 
 ## DataStream / DataSet
 * flink는 data가 streaming과 batch 방식에 대해 둘 다 지원. 대신 사용하는 API가 다름.
@@ -62,7 +60,6 @@
 * Source: 데이터 입력을 정의하는 단계. 로그, 센서 등에서 발생하는 데이터를 실시간 이벤트 스트림이나, DB, file 등에서 수신 받음.
 * Transformation: 데이터를 가공하는 단계. 자바에서 제공하는 map, filter, reduce 등의 기능들을 쓸 수 있다. 또한, 트랜스폼 단계에서 윈도우 기능을 제공. 
 * Sink: 처리한 스트림을 출력, 저장하는 단계. flink는 데이터를 chain 방식으로 단계별로 변환 시키는 구조를 가지는데, 이 때 계산의 결과 값이 필요할 때까지 계산을 늦추는 Lazy Evaluation을 채택. 그래서 sink 단계가 없다면 데이터 처리를 하지 않는다. 즉, Sink가 실행되는 순간에 정의했던 transformation들이 실행된다.
-![flink dataflow](https://open.oss.navercorp.com/storage/user/1981/files/9b869b9b-7233-465b-9354-14dba5c55b5e)
 
 ## Flink 구조
 * Flink는 master Process(Job Manager)와 Worker Process(Task Manager)의 두 종류 process가 존재.
@@ -71,11 +68,8 @@
 > * ResourceManager: standalone cluster, Kubernetes 등의 환경에서 리소스(task slot : 태스크 실행에 필요한 자원)를 관리.   
 > * Dispatcher: flink application 실행을 위한 REST interface 제공.
 > * JobMaster: single JobGraph 실행을 관리. flink cluster에서 여러 job이 동시에 돌아갈 때는 각각의 jobmaster를 가지고 있다.
-> ![jobmanager_ha_overview](https://open.oss.navercorp.com/storage/user/1981/files/3d2c9165-8c66-4d0a-ae0c-facc80dc47db)
 
 * TaskManagers : 일반적으로 Flink 클러스터는 여러 태스크 매니저를 갖고 있음. 태스크매니저는 여러 태스크 슬롯을 가질 수 있음. 태스크 슬롯은 concurrent하게 실행가능. 하나의 task slot안에서 여러 개의 operator가 실행이 가능하다.
-![flink achitecture](https://open.oss.navercorp.com/storage/user/1981/files/b2dc1464-9e88-45cc-bb81-0fe72f0792fd)
-![flink task](https://open.oss.navercorp.com/storage/user/1981/files/ccffa5de-6e15-4cbd-b0e1-83681b75da42)
 
 ## Time
 * flink는 data가 Streaming으로 들어왔을 때 시간에 대한 개념을 제공.
@@ -83,12 +77,10 @@
 * Ingestion Time: record가 flink에 들어온 시간. 들어온 각각의 record에 대해 TimeStamp를 실시간으로 할당.
 * Processing Time: record가 실제 flink에서 처리된 시간. 
 * Time 개념들이 존재하는 이유: 만약 processing time을 기준으로 작업을 처리한다면, record가 네트워크나 source 문제로 지연도착을 했다면 window에서 data가 잘 못 처리 될 수 있다. 그래서 event time 기반의 데이터 처리를 위해 watermarks 개념이 이용. 
-<img width="480" alt="스크린샷 2023-01-28 오후 4 30 44" src="https://open.oss.navercorp.com/storage/user/1981/files/84f1d699-53d5-49aa-8cfd-0fea379e27c3">
 
 ## Watermarks
 * 일종의 timestamp로 window에서 watermark를 세팅할 수 있으며, window에 할당된 시간이 지나도 watermark 시간 안쪽우로 들어오면 해당 이벤트를 lateness로 간주.
 * lateness인 데이터는 사용자 설정에 따라 버릴 수도 있고, 이전 window 처리에 포함할 수도 있다.
-![flink watermark](https://open.oss.navercorp.com/storage/user/1981/files/2cb987eb-083e-43bf-8769-62c5a187d432)
 
 ## CheckPoint
 * Flink는 Exactly-Once를 보장하기 위해 내부적으로 CheckPoint 사용.
@@ -100,7 +92,6 @@
 * 그래서 데이터가 소비되더라도 데이터가 사라지지 않는 kafka 같은 브로커를 연결해서 사용.
 * 데이터가 복구되면서 일부 레코드는 여러 번 sink가 되는데, 여러번 sink(저장)해도 동일한 내용을 저장할 수 있는(멱등성) 저장 방식으로 구성되어야 한다.
 
-![kafka checkpoint](https://open.oss.navercorp.com/storage/user/1981/files/32ef800e-217b-43ae-ada0-0e081fb46912)
 
 ## To Do
 * file sink 시 small file issue

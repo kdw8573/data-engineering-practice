@@ -35,7 +35,6 @@
 > * Driver를 통해 Spark가 Cluster Manager에 연결되면 Executor 실행에 필요한 리소스를 얻어올 수 있음.
 > * 다양한 Cluster Manager를 지원(Standalone, Hadoop Yarn, Kubernetes)
 
-![spark architecture](https://open.oss.navercorp.com/storage/user/1981/files/3e59928d-3ee4-4a75-87d9-40c2dd5493c9)
 
 ## spark mode
 * Spark local mode
@@ -43,18 +42,15 @@
 > * Cluster와 Cluster Manager가 없기 때문에, 단일 머신 환경을 구축하거나 간단한 테스트를 할 때 유용.
 > * Local Client JVM에 Driver 1개와 Executor 1개를 생성하는 형태. Executor 내부에는 여러 개의 Core를 사용하여 태스크를 병렬로 실행.
 
-> ![spark local mode](https://open.oss.navercorp.com/storage/user/1981/files/cfd1a712-98df-461e-9a1c-9ffb7c43ff02)
 * Cluster Manager는 2가지 배포 방식 존재. Spark Driver를 어디에서 실행시키느냐 따라 다름.
 * deploy mode - Client mode
 > * Spark 실행 시 Driver가 Cluster 외부에서 실행되는 모드.
 > * Driver Program은 Client 프로세스에 존재. 따라서 Spark Application을 실행했던 콘솔을 닫아 버리거나 기타 다른 방법으로 Client 프로세스를 중지시키면, Spark Context도 함께 종료되면서 수행 중이던 모든 스파크 job이 중지.
 > * 따로 지정하지 않으면 기본으로 선택되는 모드. 
 
-> ![spark client mode](https://open.oss.navercorp.com/storage/user/1981/files/1c7d4943-ea54-4f4e-9bdf-2f4e43bebab5)
 * deploy mode - Cluster mode
 > * Driver가 Cluster 내의 Worker 노드 중 하나에서 실행되는 모드.
 
-> ![spark-cluster](https://open.oss.navercorp.com/storage/user/1981/files/730610bd-bd65-4d36-90c6-248b71425f0b)
 
 ## Cluster Manager
 * standalone mode
@@ -64,7 +60,6 @@
 > * Driver는 외부의 client에서 동작. Executor는 Yarn의 Node Manager 내부의 container에서 동작.
 > * Cluster Manager는 Resource Manager가 되며, Node Manger에 Executor를 위한 Container를 할당.
 
-> ![yarn client](https://open.oss.navercorp.com/storage/user/1981/files/1829a186-0bfc-49ea-81d1-43ffcc2bd63a)
 * Yarn - cluster
 > * Driver가 Cluster 내부의 Node Manager에서 동작.
 > * 그 외에는 client와 동일
@@ -76,7 +71,6 @@
 > * 6. NodeManager는 스파크 executor에서 사용할 컨테이너를 시작.
 > * 7. driver와 executor는 직접 통신하면서 스파크 어플리케이션을 수행.
 
-> ![yarn-cluster](https://open.oss.navercorp.com/storage/user/1981/files/a5debc1c-eac3-4dee-ad25-103a1ba500f4)
 
 ## RDD(Resillient Distributed Data)
 * Resillient(회복력 있는, 변하지 않는) : 메모리 내부에서 데이터가 손실 시 유실된 부분을 재연산해 복구
@@ -89,7 +83,6 @@
 * 저수준의 데이터 형태로 스키마가 없음.
 * 별도의 내장된 최적화(Optimize) 엔진이 없음. 사용자는 테이블 조인이나 효율화 처리를 사용자가 직접 제어.
 
-![spark RDD](https://open.oss.navercorp.com/storage/user/1981/files/1e693d3e-0658-4b12-a084-a9b812eff2a2)
 
 ## DataFrame & DataSet
 * DataFrame 
@@ -107,13 +100,11 @@
 * Narrow Transformation: 데이터의 이동이 필요 없는(Shuffle이 발생하지 않는) Transformation. 각 입력 Partition이 하나의 출력 Partition에만 영향. ex) map, filter
 * Wide Transformation: 하나의 입력 Partition이 여러 출력 Partion에 영향. ex) SQL의 group by 처럼 특정 키를 기준으로 데이터를 모은 후 집계하는 경우
 
-![spark transformation](https://open.oss.navercorp.com/storage/user/1981/files/fba524c7-00bb-4606-b00b-701ae96ccb6f)
 
 * 마지막으로 최종 RDD에 대해 어떠한 행동을 취할지 나타내는 것이 Action.
 * Action을 실행하는 순간 이제까지 적용했던 Transformation이 적용(Lazy Evaluation).
 * Lazy Evaluation을 통해 연산을 바로 적용하지 않고, 실행 계획을 분석하여 최적화 한 뒤에 물리적으로 실행.  
 
-<img width="686" alt="RDD transformation" src="https://open.oss.navercorp.com/storage/user/1981/files/656c2774-12e0-481b-8522-8967429fddca">
 
 ## 실행 계획 최적화
 1. DataFrame/DataSet/SQL을 사용해 코드를 작성.
@@ -127,7 +118,6 @@
 > * 구조적 API(DataFrame, Dataset, SQL)를 일련의 RDD와 트랜스포메이션으로 변환.
 4. 클러스터에서 물리적 실행 계획(RDD 처리)을 실행.
 
-![spark optimizer](https://open.oss.navercorp.com/storage/user/1981/files/c50b63d8-fbe5-482a-815e-84124e0fe4ce)
 
 ## Partition
 * 일반적으로 Spark는 단일 머신에서 처리하기 어려운 큰 사이즈의 데이터를 사용
@@ -141,7 +131,6 @@
 * 어떤 데이터를 이동해야 할지 모르므로 전체 데이터에 대한 탐색이 필요할 수 있음.
 * Shuffle로 인해 Memory / Disk / Network 등 많은 자원이 소모하므로 Shuffle 을 적게, 필요한 만큼만 수행하는 것이 중요
 
-<img width="492" alt="spark shuffle" src="https://open.oss.navercorp.com/storage/user/1981/files/e50ddd7d-09a9-4273-82e1-5f2e61770b33">
 
 ## Job, Stage, Task
 * Job: 1회성으로 실행되는 작업. Spark Job은 Airflow 같은 스케쥴러에서 주기적으로 실행되어 할일을 마친 뒤 종료되는 Spark Application.
@@ -149,7 +138,6 @@
 * Stage: Task의 묶음. Stage를 구분하는 기준은 Wide Transformation(Shuffle)
 * Stage 내에서 Task는 병렬로 실행될 수 있으나, Stage는 Shuffle로 구분되고 Shuffle은 데이터 이동을 하므로 다음 Stage가 시작되기 위해서는 이전 Stage가 종료되어야함.
 
-<img width="760" alt="Spark stage" src="https://open.oss.navercorp.com/storage/user/1981/files/6a035978-577c-4e1d-8fbe-bb3908590a3e">
 
 ## SparkSession, SparkContext
 * SparkApplication의 entry point로 스파크의 기능들과 구조들이 상호방식하는 방식을 제공

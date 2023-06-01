@@ -20,7 +20,6 @@
 * 이러한 서버 구조를 Ensemble(앙상블)이라 부르며, leader-follower 형태를 가짐.
 * 클라이언트가 특정 서버에 접속하여 데이터를 업데이트하며, 업데이트 된 서버는 leader의 역할을 맡은 주키퍼 서버에 그 데이터를 알림.
 * 업데이트를 감지한 leader 서버는 그 정보를 다른 곳에 브로드캐스트(Broadcast) 형식으로 알림. 나머지 Follower 주키퍼 서버들은 그 내용을 갱신하여 전체 서버들의 데이터들이 일관된 상태로 유지.
-![zookeeper](https://open.oss.navercorp.com/storage/user/1981/files/58311572-7431-4f36-849c-bfc502838255)
 
 ## 트랜잭션 처리
 1. 새로운 트랜잭션 요청이 Follower에게 도착하였을 경우, Follower는 Leader에게 요청을 전달.
@@ -54,7 +53,6 @@
 > * ACL(Action control list): ACL은 znode에 접근하기 위한 권한 획득 메커니즘. 권한을 통해 znode의 읽기 쓰기 연산을 통제. 접근 권한은 (schema:id, permission) 같은 형태로 설정.
 > * 타입스탬프(Timestamp) : znode가 생성되고 나서 경과된 시간 및 업데이트된 시간 제공.
 * ZooKeeper는 여러 서버에 분산되어 있는 znode를 관리하기 위한 서비스
-![zookeeper model](https://open.oss.navercorp.com/storage/user/1981/files/fe56eae6-d428-49b3-b426-9fb98c3af1e3)
 
 ## Watcher
 * ZooKeeper는 znode에 변화를 감지할 수 있는 Watcher를 클라이언트가 설정할 수 있도록 한다. 

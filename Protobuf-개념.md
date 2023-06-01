@@ -23,7 +23,6 @@ message Person {
 * 위는 .proto 파일에 적힌 예시. 속성이름을 숫자로 대체한다.
 * 데이터를 변환할 때 1byte는 데이터 태그 번호(5bit)와 type(3bit)를 나타낸다.
 * 그 다음 1byte는 데이터 길이를 표시하며, 나머지 byte들은 데이터를 16진수로 인코딩한 값이다.
-![protobuf example](https://open.oss.navercorp.com/storage/user/1981/files/1ff5959a-2c86-4c1a-979b-5674d1d7a2fa)
 
 ## protobuf 특징
 * 통신이 빠르다. JSON, XML에 비교해서 데이터 크기가 작기 때문에 같은 시간에 더 많은 데이터를 보낼 수 있다.
@@ -36,7 +35,6 @@ message Person {
 > * protoc -I=./ --python_out=./ ./address.proto
 > * -I에는 이 protofile이 있는 소스 디렉토리, --python_out에는 생성된 파이썬 파일이 저장될 디렉토리, 마지막로 proto 파일 위치.
 * 해당 언어로 생성된 데이터 클래스를 이용해 프로그램에 적용.
-![protobuf compile](https://open.oss.navercorp.com/storage/user/1981/files/454f9484-07c8-4a37-bf67-19d763cf870a)
 
 ## proto3 문법
 * protobuf에 버전2가 있고, 버전3가 있다. proto2가 default version이지만, protoc3가 최신버젼.

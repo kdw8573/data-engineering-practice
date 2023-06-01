@@ -34,7 +34,6 @@
 4. Consumer가 프로듀서의 메시지 생성속도를 따라가지 못할 때 컨슈머를 그룹으로 묶어 다른 컨슈머를 추가함으로써 프로듀서에서 보내는 속도와 읽는 속도의 균형을 맞출 수 있다. 
  
 ## Core Components
-![kafka components](https://open.oss.navercorp.com/storage/user/1981/files/55e049ae-8f3f-4ec8-bb0b-536158b7c51a)
 * Producer: 메시지를 발생시키고, 카프카 cluster에 적재.
 * Consumer: 카프카 cluster에서 메시지를 구독하고 가져옴.
 * Zookeeper: 카프카 클러스터 정보 및 분산처리 관리 등 메타데이터 저장(broker id, controller id...)
@@ -43,7 +42,6 @@
 > * Topic: 카프카에 전달되는 메시지 스트림의 추상화된 개념. 프로듀서는 메시지를 특정 토픽에 발행한다. 토픽은 카프카 클러스터에서 여러개를 생성할 수 있으며, 하나의 토픽은 1개 이상의 파티션으로 구성. 
 > * Partition: 토픽 당 데이터를 분산 처리하는 단위. 토픽 안에 파티션을 나누어 데이터를 분산처리한다. 그래서 파티션 수 만큼 Consumer를 연결 할 수 있다. 파티션으로 메시지가 들어오면 append-only 특성이여서 추가만 가능. 파티션의 수를 나중에 증가시키는 것은 가능하지만, 줄이는 것은 불가능하므로 처음 토픽을 생성할 때 신중하게 파티션 수를 결정해야 된다.
 > * Offset: 파티션 내의 각 메시지들의 위치. 프로듀서로부터 메시지가 들어오면 파티션의 가장 끝에 붙게되며, 컨슈머는 offset을 기준으로 어디까지 읽었는지 판단이 가능.  
-> ![kafka topic](https://open.oss.navercorp.com/storage/user/1981/files/35a01402-e3c4-4aeb-9a0a-95d131eca875)
 
 ## 고가용성(High Availability)
 * 서버, 프로그램 등이 오랜 시간 지속적으로 정상 운영이 가능한 성질을 의미.
@@ -53,7 +51,6 @@
 * 리더의 변경사항을 잘 따라가는 Follower는 ISR(In-Sync Replica)가 되며 만약 Leader replica가 있는 브로커에 장애가 생길 경우, ISR에 속한 replica 중에 새로운 Leader로 선정.
 * Broker의 로드를 줄이기 위해 가급적 브로커마다 동일한 Partition leader 설정.
 * 복제 개수만큼 저장용량이 증가한다는 단점이 존재하지만, 데이터를 안전하게 사용할수 있다는 강력한 장점.
-> ![kafka replication](https://open.oss.navercorp.com/storage/user/1981/files/ac5fe49a-ddfa-4a83-9e2d-ac5056bdb543)
 
 ## Controller 
 * 카프카 브로커 중 하나로, 다른 브로커들의 생존 여부를 확인. 
@@ -61,13 +58,11 @@
 * 그럼 다른 브로커에서 /controller에 다시 임시노드 생성을 시도해 새로운 controller로 선출.
 * 만약 임의의 브로커가 중단되면, 컨트롤러는 다른 브로커에 있던 팔로워 파티션 중 하나를 골라 리더 파티션으로 선출되고 변경된 리더 파티션 정보를 주키퍼에 저장.
 
-![kafka controller](https://open.oss.navercorp.com/storage/user/1981/files/9b70343f-55e2-4901-bc4f-b2139c66c927)
 
 ## Producer 메시지 전달 과정
 1. 직렬화: 직렬화란 클래스 내부에 있는 데이터, 변수 등의 값들을 byte 형식의 데이터로 만드는 것. 프로듀서는 전달된 메시지의 key와 value를 지정된 Serializer로 byte 데이터로 변환.
 2. 파티셔닝: 직렬화된 메시지는 partitioner를 통해 토픽의 어느 파티션에 저장될지 결정. 별도의 설정이 없으면 Round-Robin 방식으로 메시지가 저장되며, 특정 파티션에 메시지를 저장하도록 지정할 수도 있다.
 3. 압축: 메시지 압축 설정이 있다면, 설정된 포맷에 맞춰 메시지를 압축. 압축된 메시지는 브로커로 빠르게 전달할 수 있으며, 브로커 내부에서 빠르게 복제 가능.
-> ![kafka compression](https://open.oss.navercorp.com/storage/user/1981/files/aacb7a42-8949-40e6-9773-5efc3d5c2036)
 4. 배치: 프로듀서는 메시지를 네트워크를 통해 리더 파티션으로 전송. 그러나 네트워크 전송은 느리기 때문에 메시지가 올 때마다 전달하는 것은 비효율적. 그래서 지정된 만큼 메시지를 저장했다가 한 번에 브로커에 전달. 프로듀서 내부의 Record Accumulator(RA)가 담당하여 처리하며 메시지들을 레코드 배치(Record Batch) 형태로 묶어 큐에 저장. 
 > * batch size: producer 옵션으로 배치로 보내려는 데이터 양을 조절.
 > * linger.ms: 최대 전송 대기 시간 설정 옵션. 값을 조절하여 batch.size가 꽉 차도록 설정하면 서버의 부하를 줄일 수 있다. 대신 값이 높을수록 처리량은 증가하지만, 그만큼 저장되었다가 전송되므로 지연율이 높아짐.
@@ -93,11 +88,9 @@
 > * 컨슈머 그룹 내에서 컨슈머 수가 변경되면 파티션 소유권이 재조정되는 리밸런싱이 발생.  
 > * 리밸런싱을 통해 컨슈머 그룹 내의 컨슈머들이 파티션을 고르게 할당받아 소비할 수 있다.
 > * 브로커가 추가/제거 되는 경우 전체 컨슈머 그룹들에서 리밸런싱이 발생.
-> ![kafka consumer group](https://open.oss.navercorp.com/storage/user/1981/files/871b2dee-e697-4880-9549-28c852919c82)
 
 ## Segment File
 * 메시지는 topic안에 partition별로 로그를 쓰는데, 이 때 로그를 쓰고 보관하는 단위가 segment.
-> ![kafka segment](https://open.oss.navercorp.com/storage/user/1981/files/28274b43-96f0-480b-b96a-b7dae8ab74a8)
 * kafka 폴더의 server.properties파일에서 logs.dir 값을 통해 segment 파일이 저장되는 위치를 알 수 있다.
 * server.properties에서 로그와 관련된 옵션을 지정할 수 있다.
 > * log.segment.bytes : 바이트 단위로 최대 세그먼트 크기를 정의 (default 1GB)
@@ -107,7 +100,6 @@
 * 일반적으로 파일 시스템을 사용하면 속도가 느리다는 단점이 있다. 그러나 카프카는 page cache와 zero copy를 통해 최적화.
 * page cache는 메인 메모리의 남는 공간에 파일의 내용을 담는 것을 의미. 이를 통해 consumer에서 읽기 요청이 왔을 때 disk에 접근하지 않고, 메모리에 적재되어 있는 데이터를 바로 전송.
 * zero copy는 카프카 application에 데이터를 올리지 않고, 디스크에서 있는 세그먼트 파일로부터 메시지를 읽음과 동시에 네트워크에 전송하는 것을 의미. 따라서 disk와 네트워크 사이에 전송 속도가 올라간다.
-> ![zero_copy_2](https://open.oss.navercorp.com/storage/user/1981/files/6b16ad03-c7fe-4ddd-8530-244cc3547e6e)
 
 ## 메시지 보증 전략
 * at-most-once: 실패나 타임아웃 등이 발생하면 메시지를 버릴 수 있다. 데이터가 일부 누락되더라도 영향이 없는 대량처리나 짧은 주기의 전송 서비스에 유용할 수 있다.
@@ -126,7 +118,6 @@
 > * 컨버터: 데이터의 serialization, deserialization를 처리. JsonConverter, StringConverter, ByteArrayConverter 등이 존재.
 > * 트랜스폼: 데이터 처리 시 각 메시지 단위로 데이터를 간단하게 변환하기 위한 용도로 사용.
 * 오픈소스 커넥터는 직접 커넥터를 만들 필요가 없이 파일을 다운로드 하여 사용할 수 있다는 장점. HDFS, AWS S3, JDBC 커넥터 등이 존재.
-![kafka connect](https://open.oss.navercorp.com/storage/user/1981/files/41071039-2e80-4517-b754-26e216d660a2)
 
 ## Schema Registry
 * kafka는 pub-sub 모델로 느슨한 결합이라고 했지만, 실제로는 메시지에 대해 producer와 consumer 간에 의존성이 강하다.
@@ -140,4 +131,3 @@
 > * Forward: 이전 스키마에서 새로운 데이터를 읽는것이 가능한것을 의미. 새로운 스키마에서 특정 필드가 삭제된다면, 해당 필드는 이전 스키마에서 default value를 가지고 있어야 함.
 > * Full: Backward 와 Forward 을 모두 만족함
 > * None: 스키마 호환성을 체크하지 않음.
-![kafka schema](https://open.oss.navercorp.com/storage/user/1981/files/11bf7921-15af-4b7e-905c-f84b972216fb)
