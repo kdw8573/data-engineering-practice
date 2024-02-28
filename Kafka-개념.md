@@ -26,6 +26,7 @@
 * Pub-Sub 모델은 데이터를 만들어내는 프로듀서, 소비하는 컨슈머. 둘 사이에서 중재자 역할을 하는 브로커로 구성된 느슨한 결합(Loosely Coupled)의 시스템.
 * Producer는 메시지를 생성한 뒤 broker에게 전달. Broker는 메시지를 topic별로 분류하여 쌓아둠. Consumer는 Broker에게서 메시지를 가져감.
 * 링크드인에서 처음 개발 -> 2011년 오픈소스로 공개 -> 2012년 10월 아파치 인큐베이터 종료 -> 2014년 일부 엔지니어들이 Confluent 회사 창립.
+![](https://blog.kakaocdn.net/dn/bQsf0C/btqKJ1gqfZ6/pd4qkBeKVCXr6oiiz63pIk/img.png)
 
 ## Kafka 특징
 1. 여러 Producer가 동시에 메시지를 전송할 수 있고, 여러 Consumer에서 동시에 메시지를 읽을 수 있다.
@@ -37,12 +38,12 @@
 * Producer: 메시지를 발생시키고, 카프카 cluster에 적재.
 * Consumer: 카프카 cluster에서 메시지를 구독하고 가져옴.
 * Zookeeper: 카프카 클러스터 정보 및 분산처리 관리 등 메타데이터 저장(broker id, controller id...)
-* Kafka Cluster: 카프카 broker들의 모임. 확장성과 고가용성을 위해 broker들이 cluster(여러 대의 컴퓨터들이 연결되어 하나의 시스템처럼 동작하는 컴퓨터들의 집합)로 구성
 * Broker: Kafka 서버를 의미.
 > * Topic: 카프카에 전달되는 메시지 스트림의 추상화된 개념. 프로듀서는 메시지를 특정 토픽에 발행한다. 토픽은 카프카 클러스터에서 여러개를 생성할 수 있으며, 하나의 토픽은 1개 이상의 파티션으로 구성. 
 > * Partition: 토픽 당 데이터를 분산 처리하는 단위. 토픽 안에 파티션을 나누어 데이터를 분산처리한다. 그래서 파티션 수 만큼 Consumer를 연결 할 수 있다. 파티션으로 메시지가 들어오면 append-only 특성이여서 추가만 가능. 파티션의 수를 나중에 증가시키는 것은 가능하지만, 줄이는 것은 불가능하므로 처음 토픽을 생성할 때 신중하게 파티션 수를 결정해야 된다.
-> * Offset: 파티션 내의 각 메시지들의 위치. 프로듀서로부터 메시지가 들어오면 파티션의 가장 끝에 붙게되며, 컨슈머는 offset을 기준으로 어디까지 읽었는지 판단이 가능.  
-[](https://user-images.githubusercontent.com/69498804/209282265-15855c99-7cd9-49ee-813d-00717ca59dbf.png)
+> * Offset: 파티션 내의 각 메시지들의 위치. 프로듀서로부터 메시지가 들어오면 파티션의 가장 끝에 붙게되며, 컨슈머는 offset을 기준으로 어디까지 읽었는지 판단이 가능.
+* Kafka Cluster: 카프카 broker들의 모임. 확장성과 고가용성을 위해 broker들이 cluster(여러 대의 컴퓨터들이 연결되어 하나의 시스템처럼 동작하는 컴퓨터들의 집합)로 구성
+![](https://user-images.githubusercontent.com/69498804/209282265-15855c99-7cd9-49ee-813d-00717ca59dbf.png)
 
 ## 고가용성(High Availability)
 * 서버, 프로그램 등이 오랜 시간 지속적으로 정상 운영이 가능한 성질을 의미.
@@ -52,6 +53,7 @@
 * 리더의 변경사항을 잘 따라가는 Follower는 ISR(In-Sync Replica)가 되며 만약 Leader replica가 있는 브로커에 장애가 생길 경우, ISR에 속한 replica 중에 새로운 Leader로 선정.
 * Broker의 로드를 줄이기 위해 가급적 브로커마다 동일한 Partition leader 설정.
 * 복제 개수만큼 저장용량이 증가한다는 단점이 존재하지만, 데이터를 안전하게 사용할수 있다는 강력한 장점.
+![](https://blog.kakaocdn.net/dn/lp57K/btqFZxKtxH9/5Cmwa7BkEyk5DwRGFOq4Z0/img.png)
 
 ## Controller 
 * 카프카 브로커 중 하나로, 다른 브로커들의 생존 여부를 확인. 
@@ -89,6 +91,7 @@
 > * 컨슈머 그룹 내에서 컨슈머 수가 변경되면 파티션 소유권이 재조정되는 리밸런싱이 발생.  
 > * 리밸런싱을 통해 컨슈머 그룹 내의 컨슈머들이 파티션을 고르게 할당받아 소비할 수 있다.
 > * 브로커가 추가/제거 되는 경우 전체 컨슈머 그룹들에서 리밸런싱이 발생.
+![](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FViEiC%2FbtqT17ZeMXQ%2FPvcDadhPkk6rL8iOdaSzJk%2Fimg.png)
 
 ## Segment File
 * 메시지는 topic안에 partition별로 로그를 쓰는데, 이 때 로그를 쓰고 보관하는 단위가 segment.
@@ -100,7 +103,8 @@
 * 메시지를 파일에 저장함으로 인해 컨슈머쪽에 장애가 생겨 메시지를 바로 소비하지 못 해도, 카프카가 메시지를 보존하고 있는 기간 내에는 언제든 읽어 갈 수 있다.
 * 일반적으로 파일 시스템을 사용하면 속도가 느리다는 단점이 있다. 그러나 카프카는 page cache와 zero copy를 통해 최적화.
 * page cache는 메인 메모리의 남는 공간에 파일의 내용을 담는 것을 의미. 이를 통해 consumer에서 읽기 요청이 왔을 때 disk에 접근하지 않고, 메모리에 적재되어 있는 데이터를 바로 전송.
-* zero copy는 카프카 application에 데이터를 올리지 않고, 디스크에서 있는 세그먼트 파일로부터 메시지를 읽음과 동시에 네트워크에 전송하는 것을 의미. 따라서 disk와 네트워크 사이에 전송 속도가 올라간다.
+* zero copy는 카프카 application에 데이터를 올리지 않고, 디스크에서 있는 세그먼트 파일로부터 메시지를 읽음과 동시에 네트워크에 전송하는 것을 의미. 
+![](https://dalelane.co.uk/blog/post-images/200209-kafka-retention/200209-image-6.png)
 
 ## 메시지 보증 전략
 * at-most-once: 실패나 타임아웃 등이 발생하면 메시지를 버릴 수 있다. 데이터가 일부 누락되더라도 영향이 없는 대량처리나 짧은 주기의 전송 서비스에 유용할 수 있다.
